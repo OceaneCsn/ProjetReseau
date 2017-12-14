@@ -51,6 +51,6 @@ class Protocole:
 	def attente(self, ID):
 		res = '_'
 		while (res=='_'):
-			res = p.rec(ID)
+			res = self.rec(ID)
 		return res
 

@@ -34,16 +34,19 @@ p.envoi("valid", '')
 perso = p.rec("perso")
 print "Vous êtes un ",perso
 
-
+#methode décrivant le crime des loups garous pendant la nuit
 def NuitLoupGarou(p):
 	p.envoi("loups",'')
 	loups = p.recListe("listeLoups")
-	print "Vous êtes loup avec ", loups
+	print "Les loups garous s'éveillent et se reconnaissent. Il s'agit de : ", loups
 	p.envoi("loupsreçus",'')
-	
-	print "Vous pouvez tuer", p.recListe("listeVillageois")
+	vill = p.recListe("listeVillageois")
+	print "Vous pouvez tuer", vill
 	print "Entrez le nom de la victime"
 	mort = str(raw_input())
+	while (mort not in vill):
+		print "Veuillez rentrer le nom d'une des personnes pouvant être tuée dans la liste ci dessus."
+		mort = str(raw_input())
 	p.envoi("mort", mort)
 
 	
@@ -56,6 +59,8 @@ if(perso == "Loup Garou"):
 if(perso == "Villageois"):
 	print "Vous dormez profondément."
 	mort = p.attente("jour")
+	
+print "\nCette nuit, ",mort," a été dévoré(e)...\nLe conseil du village se réunit pour tenter de tuer un loup garou."
 	
 #print "\033[31mThis is blue\033[0m"
 

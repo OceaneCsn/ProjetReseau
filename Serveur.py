@@ -11,7 +11,6 @@ import random as rd
 
 
 #initialisation de la partie et de la communication
-#def initialisation():
 	
 nb_joueurs = int(sys.argv[1])
 personages = ["Loup Garou", "Villageois"]
@@ -35,6 +34,8 @@ for i in xrange(0,nb_joueurs):
 #on melange aleatoirement les joueurs
 rd.shuffle(players)
 threads = []
+
+morts = []
 		
 #Methode lancee pour chaque client, deroule le jeu
 def partie():
@@ -65,26 +66,24 @@ def partie():
 		if(pl.perso!="Loup Garou"):
 			Villageois.append(pl.name)
 	
-	global mort
+	#récupère les choix de victime des loups garous
+	global morts
 	if(perso=="Loup Garou"):
 		p.rec("loups")
 		p.envoiListe("listeLoups", Loups)
 		p.rec("loupsrecus")
 		p.envoiListe("listeVillageois", Villageois)
-		mort.append(p.rec("mort"))
+		morts.append(p.attente("mort"))
 		
+	#on attend que tous les loups aient voté	
 	while True:
-		if(len(mort)==len(Loups)):break
+		if(len(morts)==len(Loups)):break
 	
+	#on supprime la personne tuée de la liste des joueurs
+	#players = filter(lambda x: x.name!=mort, players)
+	p.envoi("jour", morts[0])
 	
-	players = filter(lambda x: x.name!=mort, players)
-	p.envoi("jour", mort)
-		#for pl in players:
-			#if(pl == nom) players.remove(pl)
-		
-		
 
-	
 	
 		
 
