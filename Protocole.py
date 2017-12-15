@@ -47,7 +47,7 @@ class Protocole:
 		d = self.rec(ID)
 		#print "liste recue : ",d
 		return d.split(',')
-		
+	
 	def attente(self, ID):
 		res = '_'
 		while (res=='_'):

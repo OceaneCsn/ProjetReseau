@@ -11,12 +11,12 @@ import sys
 	
 #recupere l'adresse du serveur en parametres
 
-print "Bienvenue dans votre partie de Loup Garou! "
+print "Bienvenue dans votre partie de Loup Garou!\n "
 adresse_serveur = str(sys.argv[1])
-print "Demande de connexion au serveur a l'adresse ", adresse_serveur, "."
+#print "Demande de connexion au serveur a l'adresse ", adresse_serveur, "."
 socket = socket(AF_INET, SOCK_STREAM)
 socket.connect((adresse_serveur,8000))
-print "Connecte au serveur."
+print "Connecte au serveur à l'adresse ", adresse_serveur, ".\n"
 
 #creation du protocole de communication avec le serveur
 p = Protocole(socket, '$')
@@ -24,11 +24,14 @@ p = Protocole(socket, '$')
 print "Veuillez rentrer votre pseudo pour la partie :"
 pseudo = str(raw_input())
 p.envoi("pseudo", pseudo)
-joueurs = '_'
+
+#joueurs = '_'
 print "Nous attendons que tous les joueurs regagnent la partie..."
-while (joueurs=='_'):
-	joueurs = p.recListe("joueurs")
-	
+#while (joueurs=='_'):
+#	joueurs = p.recListe("joueurs")
+
+joueurs = p.attenteListe("joueurs")
+
 print "Tout le monde est la : ",joueurs
 p.envoi("valid", '')
 perso = p.rec("perso")

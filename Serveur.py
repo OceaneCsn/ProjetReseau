@@ -41,8 +41,9 @@ votes = []
 def majorite(votes):
 	scores = dict()
 	for joueur in votes:
+		if (joueur not in scores.keys()):scores[joueur] = 0
 		scores[joueur] += 1
-	return max(scores, key=score.get)
+	return max(scores, key=scores.get)
 	
 	
 		
@@ -55,11 +56,12 @@ def partie():
 	players[cptJoueurs].name = nomJoueur
 	perso = players[cptJoueurs].perso
 	cptJoueurs += 1
+	
+	#on attend que tous les clients aient rejoint la partie
 	if(cptJoueurs < nb_joueurs):
 		while True:
 			if(cptJoueurs == nb_joueurs):break
 			
-
 	#envoi de la liste de tous les joueurs
 	p.envoiListe("joueurs",[pl.name for pl in players])
 	p.rec("valid")
@@ -74,7 +76,9 @@ def partie():
 	for pl in players:
 		if(pl.perso!="Loup Garou"):
 			Villageois.append(pl.name)
-	
+
+##################################### Le nuit tombe ###################################
+
 	#récupère les choix de victime des loups garous
 	global morts
 	if(perso=="Loup Garou"):
@@ -87,21 +91,31 @@ def partie():
 	#on attend que tous les loups aient voté	
 	while True:
 		if(len(morts)==len(Loups)):break
+		
+	
 	
 	#on supprime la personne tuée de la liste des joueurs
-	#players = filter(lambda x: x.name!=mort, players)
-	p.envoi("jour", morts[0])
-	
-
+	p.envoi("jour", majorite(morts))
 	for pl in players:
-		if(pl.name == morts[0]):players.remove(pl)
-	print "liste actuelle des joueurs :",[pl.name for pl in players]
+		if(pl.name == majorite(morts)):players.remove(pl)
+	Villageois.remove(majorite(morts))
+		
+	#print "liste actuelle des joueurs :",[pl.name for pl in players]
 	
 	#arrete la fonction threadée pour le joueur ayant été tuée
 	if(morts[0]==nomJoueur):
 		print "le joueur ",morts[0], " est exclu de la partie."
 		return 0
 	
+	if(not Villageois):
+		print "\nLa partie est finie : les loups ont décimé le village!!!"
+	
+	if(not Loups):
+		print "\nLa partie est finie : les villageois ont décimé les loups garous!!!"
+
+###################################### Le jour se lève #################################
+
+
 	#reception des votes du mort tué par le conseil du village
 	global votes
 	while(len(votes)<len(players)):
@@ -112,11 +126,12 @@ def partie():
 	persoMort = ""
 	for pl in players:
 		if (pl.name==mortVote): persoMort = pl.perso
-		
+	if(persoMort == "Loup Garou"): Loups.remove(mortVote)
+	else:Villegeois.remove(mortVote)
+	
 	p.envoiListe("mortVote", [mortVote,persoMort])
 	
-	
-	
+
 
 #main code
 
