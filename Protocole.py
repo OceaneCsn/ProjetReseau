@@ -54,3 +54,8 @@ class Protocole:
 			res = self.rec(ID)
 		return res
 
+	def attenteListe(self, ID):
+		res = '_'
+		while (res=='_'):
+			res = self.recListe(ID)
+		return res

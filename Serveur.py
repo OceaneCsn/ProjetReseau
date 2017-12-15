@@ -36,6 +36,15 @@ rd.shuffle(players)
 threads = []
 
 morts = []
+votes = []
+
+def majorite(votes):
+	scores = dict()
+	for joueur in votes:
+		scores[joueur] += 1
+	return max(scores, key=score.get)
+	
+	
 		
 #Methode lancee pour chaque client, deroule le jeu
 def partie():
@@ -84,8 +93,30 @@ def partie():
 	p.envoi("jour", morts[0])
 	
 
+	for pl in players:
+		if(pl.name == morts[0]):players.remove(pl)
+	print "liste actuelle des joueurs :",[pl.name for pl in players]
 	
+	#arrete la fonction threadée pour le joueur ayant été tuée
+	if(morts[0]==nomJoueur):
+		print "le joueur ",morts[0], " est exclu de la partie."
+		return 0
+	
+	#reception des votes du mort tué par le conseil du village
+	global votes
+	while(len(votes)<len(players)):
+		#verrou?
+		votes.append(p.attente("vote"))
+	
+	mortVote = majorite(votes)
+	persoMort = ""
+	for pl in players:
+		if (pl.name==mortVote): persoMort = pl.perso
 		
+	p.envoiListe("mortVote", [mortVote,persoMort])
+	
+	
+	
 
 #main code
 
