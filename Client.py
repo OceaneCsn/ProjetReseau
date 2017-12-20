@@ -116,7 +116,11 @@ while True:
 		mortVote = p.attenteListe("mortVote")
 		
 		print "Le village a décidé de tuer ", mortVote[0],". Il s'agissait d'un ", mortVote[1]," !"
-	
+		
+		if(mortVote[0]==pseudo):
+			print "Votre aventure s'arrête ici... \n"
+			break
+
 
 print " Vous allez être déconnecté du serveur. A bientôt pour une nouvelle partie!"
 socket.close()

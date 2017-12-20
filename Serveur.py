@@ -103,6 +103,7 @@ def partie():
 		while True:
 			if(len(morts)==len(Loups)):break
 		
+		
 		#on supprime la personne tuée de la liste des joueurs
 		for pl in players:
 			if(pl.name == majorite(morts)):players.remove(pl)
@@ -128,24 +129,28 @@ def partie():
 			print "le joueur ",majorite(morts), " est exclu de la partie."
 			return 0
 		
+		#del morts[:]
 		
 	###################################### Le jour se lève #################################
 
 
 		#reception des votes pour le mort désigné par le conseil du village
-		
-		votes = []
+		#votes = []
 		print "avantWhile pour ", nomJoueur
-		while(len(votes)<len(players)):
-			#verrou?
-			verrou.acquire()
-			votes.append(p.attente("vote"))
-			verrou.release()
-			print " vote de ", nomJoueur," taille de votes :", len(votes)
+		print "len players",len(players)
+		votes.append(p.attente("vote"))
+		print "Vote de ", nomJoueur," taille de votes :", len(votes)
 		
-		print "je sors de l'attente des votes"
+		print "On attend que tout le village ait voté :"
+		while True:
+			if (len(votes)==len(players)):break
+
+		
+		
 		mortVote = majorite(votes)
 		persoMort = ""
+		
+		#on supprime le mort des listes de joueurs
 		for pl in players:
 			if (pl.name==mortVote): persoMort = pl.perso
 		if(persoMort == "Loup Garou"): Loups.remove(mortVote)
@@ -153,7 +158,18 @@ def partie():
 		
 		p.envoiListe("mortVote", [mortVote,persoMort])
 		
-
+		if(not Villageois):
+			print "\nLa partie est finie : les loups ont décimé le village!!!"
+			break
+		
+		if(not Loups):
+			print "\nLa partie est finie : les villageois ont décimé les loups garous!!!"
+			break
+		
+		if(majorite(votes)==nomJoueur):
+			print "le joueur ",majorite(morts), " est exclu de la partie."
+			return 0
+		#del votes[:]
 
 #main code
 
