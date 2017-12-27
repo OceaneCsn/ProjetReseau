@@ -36,6 +36,8 @@ print "Tout le monde est la : ",joueurs
 p.envoi("valid", '')
 perso = p.rec("perso")
 print "Vous êtes un ",perso,".\n \n"
+#methode décrivant le crime des loups garous pendant la nuit
+
 
 while True:
 
@@ -44,7 +46,6 @@ while True:
 	print "--------------------------------------------------------------------\n \n"
 
 
-	#methode décrivant le crime des loups garous pendant la nuit
 	def NuitLoupGarou(p):
 		p.envoi("loups",'')
 		loups = p.recListe("listeLoups")
@@ -58,7 +59,6 @@ while True:
 			print "Veuillez rentrer le nom d'une des personnes pouvant être tuée dans la liste ci dessus."
 			mort = str(raw_input())
 		p.envoi("mort", mort)
-
 		
 		
 	#print'\nLa nuit tombe sur le village...'
