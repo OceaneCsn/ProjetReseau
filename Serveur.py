@@ -61,12 +61,28 @@ def partie():
 	global votes
 	global effaceur
 	
+	#joueur qui effacera les listes globales pour éviter les conflits
 	effaceur = "personne"
 	
-	
+	#établissement de la connexion
 	newSocket, address = comSocket.accept()
 	p = Protocole(newSocket, '$')
-	nomJoueur =  p.rec("pseudo")
+	
+	#on crée le joueur correspondant au nom rentré par le client
+	#en vérifiant qu'il n'est pas déjà pris par un autre joueur
+	
+	nomOK = "deja pris"
+	while(nomOK == "deja pris"):
+		nomJoueur =  p.rec("pseudo")
+		if(nomJoueur in [pl.name for pl in players]):
+			p.envoi("nomOK", "deja pris")
+			p.rec("validNom")
+		else:
+			nomOK = "ok"
+			p.envoi("nomOK", "ok")
+			p.rec("validNom")
+
+	
 	players[cptJoueurs].name = nomJoueur
 	perso = players[cptJoueurs].perso
 	cptJoueurs += 1
@@ -81,6 +97,7 @@ def partie():
 	p.rec("valid")
 	p.envoi("perso", perso)
 	
+	#création des listes de personnages
 	Loups = []
 	for pl in players:
 		if(pl.perso=="Loup Garou"):
@@ -91,23 +108,17 @@ def partie():
 		if(pl.perso!="Loup Garou"):
 			Villageois.append(pl.name)
 
+
+	#boucle principale su jeu
 	while True:
 ##################################### Le nuit tombe ###################################
 		
 		#on nettoie les listes pour la désignation des morts
-		'''effaceur = rd.randint(0, len(players)-1)
-		if(nomJoueur == players[effaceur] and ):
-			print "c'est ", nomJoueur, "qui efface"
-			del votes[:]
-			del morts[:]'''
 		if(effaceur == "personne"):
 			effaceur = nomJoueur
-			print "c'est ", nomJoueur, "qui efface"
-			#del votes[:]
 			del morts[:]
 
-		#récupère les choix de victime des loups garous
-		print "loups serveur ", Loups
+		#on récupère les choix de victime des loups garous
 		if(perso=="Loup Garou"):
 			p.rec("loups")
 			p.envoiListe("listeLoups", Loups)
@@ -123,7 +134,6 @@ def partie():
 			effaceur = nomJoueur
 			print "c'est ", nomJoueur, "qui efface"
 			del votes[:]
-			#del morts[:]
 		
 		#on supprime la personne tuée de la liste des joueurs
 		for pl in players:
@@ -140,8 +150,7 @@ def partie():
 			print "\nLa partie est finie : les villageois ont décimé les loups garous!!!"
 			p.envoiListe("jour", [majorite(morts),"VillageVainqueur"])
 			break
-			
-			print "avant le jour"
+		
 		
 		#sinon, on envoie la personne tuée et le jeu continue
 		p.envoiListe("jour", [majorite(morts), "SansVainqueur"])
@@ -152,15 +161,13 @@ def partie():
 			print "le joueur ",majorite(morts), " est exclu de la partie."
 			return 0
 		
-		#del morts[:]
-		
+			
 	###################################### Le jour se lève #################################
 
 
 		#reception des votes pour le mort désigné par le conseil du village
 		votes.append(p.attente("vote"))
 		
-		print "On attend que tout le village ait voté :"
 		while True:
 			if (len(votes)==len(players)):break
 
@@ -173,20 +180,28 @@ def partie():
 		if(persoMort == "Loup Garou"): Loups.remove(mortVote)
 		else:Villageois.remove(mortVote)
 		
-		p.envoiListe("mortVote", [mortVote,persoMort])
+		#on détermine si le jeu continue ou si il y a des vainqueurs
+		issue = "SansVainqueur"
 		
 		if(not Villageois):
 			print "\nLa partie est finie : les loups ont décimé le village!!!"
+			issue = "LoupsVainqueurs"
+			p.envoiListe("mortVote", [mortVote, persoMort, issue])
 			break
 		
 		if(not Loups):
 			print "\nLa partie est finie : les villageois ont décimé les loups garous!!!"
+			issue = "VillageVanqueur"
+			p.envoiListe("mortVote", [mortVote, persoMort, issue])
 			break
+			
+		p.envoiListe("mortVote", [mortVote, persoMort, issue])
 		
+		#fin de la fonction threadée pour le joueur mort
 		if(majorite(votes)==nomJoueur):
 			print "le joueur ",majorite(morts), " est exclu de la partie."
 			return 0
-			
+		
 		effaceur = "personne"
 		
 			

@@ -16,8 +16,7 @@ class Protocole:
 		try:
 			envoi = ID +":" + str(data) + self.fin
 			self.s.sendall(envoi)
-			#print "envoi : ",envoi
-			
+
 		except socket.error, e:
 			print "erreur dans l'envoi par le protocole utilisant la socket: %s" % e
 	
@@ -28,7 +27,6 @@ class Protocole:
 	def rec(self, ID):
 		try :
 			data = self.s.recv(1024)
-			#print "recu : ",data
 			data = data.split(':')
 			if(ID in data):
 				data = data[data.index(ID)+1]
@@ -45,7 +43,6 @@ class Protocole:
 
 	def recListe(self, ID):	
 		d = self.rec(ID)
-		#print "liste recue : ",d
 		return d.split(',')
 	
 	def attente(self, ID):

@@ -1,8 +1,6 @@
 #! /usr/bin/env python
 # -*- coding:utf-8 -*-
 
-
-
 from socket import *
 from Protocole import *
 from Joueur import *
@@ -22,21 +20,25 @@ print "Connecte au serveur à l'adresse ", adresse_serveur, ".\n"
 p = Protocole(socket, '$')
 	
 print "Veuillez rentrer votre pseudo pour la partie :\n"
-pseudo = str(raw_input())
-p.envoi("pseudo", pseudo)
 
-#joueurs = '_'
-print "Nous attendons que tous les joueurs regagnent la partie..."
-#while (joueurs=='_'):
-#	joueurs = p.recListe("joueurs")
+#Saisie d'un pseudo disponible pour la partie
+nomOK = "deja pris"
+while(nomOK == "deja pris"):
+	pseudo = str(raw_input())
+	p.envoi("pseudo", pseudo)
+	nomOK = p.rec("nomOK")
+	if(nomOK == "deja pris"):
+		print "Ce nom est déjà pris, veuillez en saisir un autre."
+	p.envoi("validNom", "")
 
+
+print "\nNous attendons que tous les joueurs regagnent la partie..."
 joueurs = p.attenteListe("joueurs")
 
 print "Tout le monde est la : ",joueurs
 p.envoi("valid", '')
 perso = p.rec("perso")
 print "Vous êtes un ",perso,".\n \n"
-#methode décrivant le crime des loups garous pendant la nuit
 
 
 while True:
@@ -45,7 +47,7 @@ while True:
 	print "---------------    La nuit tombe sur le village    -----------------"
 	print "--------------------------------------------------------------------\n \n"
 
-
+	#methode décrivant le crime des loups garous pendant la nuit
 	def NuitLoupGarou(p):
 		p.envoi("loups",'')
 		loups = p.recListe("listeLoups")
@@ -87,7 +89,7 @@ while True:
 
 		
 	print "\nCette nuit, ",mort," a été dévoré(e)...\n"
-	
+	print "keepplaying : ", keepPlaying
 	if(keepPlaying != "SansVainqueur"):
 		if(keepPlaying == "LoupsVainqueurs"):
 			print "\nLa partie est finie : les loups ont décimé le village!!!"
@@ -117,11 +119,21 @@ while True:
 		
 		print "Le village a décidé de tuer ", mortVote[0],". Il s'agissait d'un ", mortVote[1]," !"
 		
+		keepPlaying = mortVote[2]
+			
+		if(keepPlaying != "SansVainqueur"):
+			if(keepPlaying == "LoupsVainqueurs"):
+				print "\nLa partie est finie : les loups ont décimé le village!!!"
+				break
+			else:
+				print "\nLa partie est finie : les villageois ont décimé les loups!!!"
+				break
+
 		if(mortVote[0]==pseudo):
 			print "Votre aventure s'arrête ici... \n"
 			break
-
-
+			
+			
 print " Vous allez être déconnecté du serveur. A bientôt pour une nouvelle partie!"
 socket.close()
 #print "\033[31mThis is blue\033[0m"
