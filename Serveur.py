@@ -16,6 +16,7 @@ nb_joueurs = int(sys.argv[1])
 personages = ["Loup Garou", "Villageois"]
 players = []
 cptJoueurs = 0
+sockJoueurs = {}
 
 #print "\033[31mThis is blue\033[0m"
 #ouverture de la communication pour le nombre donne de joueurs
@@ -49,6 +50,8 @@ def majorite(votes):
 		scores[joueur] += 1
 	return max(scores, key=scores.get)
 	
+
+	
 	
 		
 #Methode lancee pour chaque client, deroule le jeu
@@ -60,7 +63,11 @@ def partie():
 	global morts
 	global votes
 	global effaceur
-	
+	global nouveau_message
+	global chat_is_over
+
+					
+					
 	#joueur qui effacera les listes globales pour éviter les conflits
 	effaceur = "personne"
 	
@@ -68,6 +75,25 @@ def partie():
 	newSocket, address = comSocket.accept()
 	p = Protocole(newSocket, '$')
 	
+	
+	
+	chat_is_over=0
+	nouveau_message = ""
+	def chat():
+		print "je passe dans la méthode chat!"
+		dernier_message = nouveau_message
+		while True:
+			#print "dm : ", dernier_message, "nm : ", nouveau_message
+			if(dernier_message != nouveau_message):
+				print "nouveau message a changé chez", nomJoueur, "!\n"
+				#for prot in sockJoueurs.values():
+				p.envoi("chat", nouveau_message)
+				print "envoi en broadcast ", nouveau_message
+				dernier_message = nouveau_message
+				if("fin du chat" in nouveau_message):
+					chat_is_over = 1
+					break
+      
 	#on crée le joueur correspondant au nom rentré par le client
 	#en vérifiant qu'il n'est pas déjà pris par un autre joueur
 	
@@ -81,8 +107,8 @@ def partie():
 			nomOK = "ok"
 			p.envoi("nomOK", "ok")
 			p.rec("validNom")
-
 	
+	sockJoueurs[nomJoueur] = p
 	players[cptJoueurs].name = nomJoueur
 	perso = players[cptJoueurs].perso
 	cptJoueurs += 1
@@ -91,7 +117,9 @@ def partie():
 	if(cptJoueurs < nb_joueurs):
 		while True:
 			if(cptJoueurs == nb_joueurs):break
-			
+	
+	print sockJoueurs
+	
 	#envoi de la liste de tous les joueurs
 	p.envoiListe("joueurs",[pl.name for pl in players])
 	p.rec("valid")
@@ -124,6 +152,9 @@ def partie():
 			p.envoiListe("listeLoups", Loups)
 			p.rec("loupsrecus")
 			p.envoiListe("listeVillageois", Villageois)
+			
+			#faire le chat pour délibérer!
+			
 			morts.append(p.attente("mort"))
 			
 		#on attend que tous les loups aient voté	
@@ -166,8 +197,21 @@ def partie():
 
 
 		#reception des votes pour le mort désigné par le conseil du village
-		votes.append(p.attente("vote"))
 		
+		
+		chat_is_over = 0
+		nouveau_message = ""
+		message = ""
+		thread_chat = threading.Thread(target = chat)
+		thread_chat.start()
+		while (chat_is_over !=1):
+			m = p.attente("chat_rec")
+			nouveau_message = nomJoueur + " > " + m
+			print "j'ai reçu ", m
+			#p.envoi("chat_envoi", nouveau_message)
+			#print "j'envoie au client initiateur : ", nouveau_message
+			
+		votes.append(p.attente("vote"))
 		while True:
 			if (len(votes)==len(players)):break
 

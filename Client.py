@@ -5,6 +5,7 @@ from socket import *
 from Protocole import *
 from Joueur import *
 import sys
+import threading
 
 	
 #recupere l'adresse du serveur en parametres
@@ -40,7 +41,19 @@ p.envoi("valid", '')
 perso = p.rec("perso")
 print "Vous êtes un ",perso,".\n \n"
 
+chat_is_over = 0
 
+def chat():
+	print "je suis en train d'attendre dans le thread méthode chat!"
+	
+	while True:
+		mess = p.attente("chat")
+		#print "reçu du serveur : ", mess
+		print "\n", mess, "\n"
+		if "fin du chat" in mess:
+			chat_is_over = 1
+			break
+		
 while True:
 
 	print "--------------------------------------------------------------------"
@@ -89,7 +102,7 @@ while True:
 
 		
 	print "\nCette nuit, ",mort," a été dévoré(e)...\n"
-	print "keepplaying : ", keepPlaying
+	
 	if(keepPlaying != "SansVainqueur"):
 		if(keepPlaying == "LoupsVainqueurs"):
 			print "\nLa partie est finie : les loups ont décimé le village!!!"
@@ -107,6 +120,20 @@ while True:
 	else:
 		print "Le village doit se mettre d'accord. La majorité du vote l'emportera.\n Parmis les joueurs ci dessous, lequel souhaitez vous voir mort?" 
 		print joueurs
+		
+		print "\n---------------------------------------------------------------\n Début du chat \n "
+		#chat de délibération
+		chat_is_over = 0
+		thread_chat = threading.Thread(target = chat)
+		thread_chat.start()
+		while(chat_is_over !=1):
+			message = str(raw_input())
+			p.envoi("chat_rec", message)
+			#print "envoyé au serveur : ", message
+			#print "\n",p.attente("chat_envoi"),"\n"
+			#print pseudo + " > " + message
+		print "\n---------------------------------------------------------------\n Fin du chat \n ------------------------------------------------"
+
 
 		vote = str(raw_input())
 		while (vote not in joueurs):
