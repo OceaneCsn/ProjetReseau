@@ -64,7 +64,7 @@ def partie():
 	global votes
 	global effaceur
 	global nouveau_message
-	global chat_is_over
+	global joueur_out
 
 					
 					
@@ -75,23 +75,16 @@ def partie():
 	newSocket, address = comSocket.accept()
 	p = Protocole(newSocket, '$')
 	
-	
-	
-	chat_is_over=0
+	#méthode permettant aux joueurs de communiquer entre eux 
 	nouveau_message = ""
 	def chat():
 		print "je passe dans la méthode chat!"
 		dernier_message = nouveau_message
 		while True:
-			#print "dm : ", dernier_message, "nm : ", nouveau_message
 			if(dernier_message != nouveau_message):
-				print "nouveau message a changé chez", nomJoueur, "!\n"
-				#for prot in sockJoueurs.values():
 				p.envoi("chat", nouveau_message)
-				print "envoi en broadcast ", nouveau_message
 				dernier_message = nouveau_message
 				if("fin du chat" in nouveau_message):
-					chat_is_over = 1
 					break
       
 	#on crée le joueur correspondant au nom rentré par le client
@@ -196,21 +189,27 @@ def partie():
 	###################################### Le jour se lève #################################
 
 
-		#reception des votes pour le mort désigné par le conseil du village
 		
-		
-		chat_is_over = 0
+		#tous les joueurs restants se parlent pout décider qui tuer
+		joueur_out = 0
 		nouveau_message = ""
 		message = ""
 		thread_chat = threading.Thread(target = chat)
 		thread_chat.start()
-		while (chat_is_over !=1):
+		
+		while True:
 			m = p.attente("chat_rec")
-			nouveau_message = nomJoueur + " > " + m
-			print "j'ai reçu ", m
-			#p.envoi("chat_envoi", nouveau_message)
-			#print "j'envoie au client initiateur : ", nouveau_message
-			
+			nouveau_message = nomJoueur + " > " + m	
+			if ("fin du chat" in m):
+				joueur_out += 1
+				break	
+		
+		while True:
+			if(joueur_out >= len(players)):
+				break
+		p.envoi("chat_fini","ok")
+		
+		#reception des votes pour le mort désigné par le conseil du village
 		votes.append(p.attente("vote"))
 		while True:
 			if (len(votes)==len(players)):break

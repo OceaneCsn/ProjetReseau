@@ -44,15 +44,15 @@ print "Vous êtes un ",perso,".\n \n"
 chat_is_over = 0
 
 def chat():
-	print "je suis en train d'attendre dans le thread méthode chat!"
-	
 	while True:
 		mess = p.attente("chat")
-		#print "reçu du serveur : ", mess
-		print "\n", mess, "\n"
 		if "fin du chat" in mess:
-			chat_is_over = 1
+			leaver = mess.split('>')[0].split(' ')[0]
+			if(leaver != pseudo):
+				print "\n", leaver , "a quitté le chat.\n"
 			break
+		print "\n", mess, "\n"
+		
 		
 while True:
 
@@ -122,19 +122,22 @@ while True:
 		print joueurs
 		
 		print "\n---------------------------------------------------------------\n Début du chat \n "
+		print "Quittez le une fois la décision prise en tapant : fin du chat"
 		#chat de délibération
-		chat_is_over = 0
 		thread_chat = threading.Thread(target = chat)
 		thread_chat.start()
-		while(chat_is_over !=1):
+		while True:
 			message = str(raw_input())
 			p.envoi("chat_rec", message)
-			#print "envoyé au serveur : ", message
-			#print "\n",p.attente("chat_envoi"),"\n"
-			#print pseudo + " > " + message
-		print "\n---------------------------------------------------------------\n Fin du chat \n ------------------------------------------------"
-
-
+			if "fin du chat" in message:
+				break
+		print "\nFin du chat \n-----------------------------------------------------------------"
+		
+		print "Attendons que les autres joueurs soient sortis du chat...\n"
+		
+		p.attente("chat_fini")
+		
+		print "Rentrez maintenant le nom de la personne que vous avez choisi de tuer : "
 		vote = str(raw_input())
 		while (vote not in joueurs):
 			print "Veuillez rentrer le nom d'une des personnes pouvant être tuée dans la liste ci dessus."
