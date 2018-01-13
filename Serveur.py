@@ -78,7 +78,6 @@ def partie():
 	#méthode permettant aux joueurs de communiquer entre eux 
 	nouveau_message = ""
 	def chat():
-		print "je passe dans la méthode chat!"
 		dernier_message = nouveau_message
 		while True:
 			if(dernier_message != nouveau_message):
@@ -87,9 +86,9 @@ def partie():
 				if("fin du chat" in nouveau_message):
 					break
       
+	
 	#on crée le joueur correspondant au nom rentré par le client
 	#en vérifiant qu'il n'est pas déjà pris par un autre joueur
-	
 	nomOK = "deja pris"
 	while(nomOK == "deja pris"):
 		nomJoueur =  p.rec("pseudo")
@@ -146,7 +145,26 @@ def partie():
 			p.rec("loupsrecus")
 			p.envoiListe("listeVillageois", Villageois)
 			
-			#faire le chat pour délibérer!
+			#le chat pour délibérer
+			joueur_out = 0
+			nouveau_message = ""
+			message = ""
+			thread_chat_loup = threading.Thread(target = chat)
+			thread_chat_loup.start()
+			
+			print "loups avant chat : ", Loups
+			while True:
+				m = p.attente("chat_rec")
+				nouveau_message = nomJoueur + " > " + m	
+				if ("fin du chat" in m):
+					joueur_out += 1
+					break	
+			print "joueur_out", joueur_out, "len loups : ",len(Loups)
+			while True:
+				if(joueur_out >= len(Loups)):
+					break
+			p.envoi("chat_fini","ok")
+			
 			
 			morts.append(p.attente("mort"))
 			
@@ -223,6 +241,7 @@ def partie():
 		if(persoMort == "Loup Garou"): Loups.remove(mortVote)
 		else:Villageois.remove(mortVote)
 		
+		print "liste des loups : ",Loups
 		#on détermine si le jeu continue ou si il y a des vainqueurs
 		issue = "SansVainqueur"
 		
@@ -242,7 +261,7 @@ def partie():
 		
 		#fin de la fonction threadée pour le joueur mort
 		if(majorite(votes)==nomJoueur):
-			print "le joueur ",majorite(morts), " est exclu de la partie."
+			print "le joueur ",majorite(votes), " est exclu de la partie."
 			return 0
 		
 		effaceur = "personne"

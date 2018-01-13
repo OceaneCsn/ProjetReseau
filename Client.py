@@ -41,8 +41,7 @@ p.envoi("valid", '')
 perso = p.rec("perso")
 print "Vous êtes un ",perso,".\n \n"
 
-chat_is_over = 0
-
+#methode permettant d'attendre les messages reçus des autres joueurs lors du chat
 def chat():
 	while True:
 		mess = p.attente("chat")
@@ -53,7 +52,7 @@ def chat():
 			break
 		print "\n", mess, "\n"
 		
-		
+#boucle principale du jeu
 while True:
 
 	print "--------------------------------------------------------------------"
@@ -68,7 +67,24 @@ while True:
 		p.envoi("loupsreçus",'')
 		vill = p.recListe("listeVillageois")
 		print "Vous pouvez tuer", vill
-		print "Entrez le nom de la victime"
+		
+		print "\n---------------------------------------------------------------\n Début du chat \n "
+		print "Quittez le une fois la décision prise en tapant : fin du chat"
+		#chat de délibération
+		thread_chat_loup = threading.Thread(target = chat)
+		thread_chat_loup.start()
+		while True:
+			message = str(raw_input())
+			p.envoi("chat_rec", message)
+			if "fin du chat" in message:
+				break
+		print "\nFin du chat \n-----------------------------------------------------------------"
+		
+		print "Attendons que les autres joueurs soient sortis du chat...\n"
+		
+		p.attente("chat_fini")
+		
+		print "Entrez le nom de la victime choisie"
 		mort = str(raw_input())
 		while (mort not in vill):
 			print "Veuillez rentrer le nom d'une des personnes pouvant être tuée dans la liste ci dessus."
@@ -144,7 +160,7 @@ while True:
 			vote = str(raw_input())
 		p.envoi("vote", vote)
 		
-		print "Nous attendons que tout le monde ait voté et délibéré...\n "
+		print "Nous attendons que tout le monde ait voté.\n "
 		mortVote = p.attenteListe("mortVote")
 		
 		print "Le village a décidé de tuer ", mortVote[0],". Il s'agissait d'un ", mortVote[1]," !"
