@@ -6,20 +6,31 @@ from Protocole import *
 from Joueur import *
 import sys
 import threading
+import time
 
+if(len(sys.argv) == 1):
+	print "Erreur : veuillez renseigner l'adresse serveur auquel vous connecter pour la partie en argument."
+	sys.exit()
 	
 #recupere l'adresse du serveur en parametres
 
-print "Bienvenue dans votre partie de Loup Garou!\n "
 adresse_serveur = str(sys.argv[1])
 #print "Demande de connexion au serveur a l'adresse ", adresse_serveur, "."
 socket = socket(AF_INET, SOCK_STREAM)
-socket.connect((adresse_serveur,8000))
-print "Connecte au serveur à l'adresse ", adresse_serveur, ".\n"
+
+try:
+	socket.connect((adresse_serveur,8000))
+	print "Connecté au serveur à l'adresse ", adresse_serveur, ".\n"
+except error:
+	print "Echec de la connection. Etes vous sûr s'avoir lancé le serveur?\nFin du programme."
+	sys.exit(1)
 
 #creation du protocole de communication avec le serveur
 p = Protocole(socket, '$')
-	
+
+
+print "Bienvenue dans votre partie de Loup Garou!\n "
+time.sleep(1)
 print "Veuillez rentrer votre pseudo pour la partie :\n"
 
 #Saisie d'un pseudo disponible pour la partie
@@ -39,7 +50,11 @@ joueurs = p.attenteListe("joueurs")
 print "Tout le monde est la : ",joueurs
 p.envoi("valid", '')
 perso = p.rec("perso")
+
+time.sleep(1)
+
 print "Vous êtes un ",perso,".\n \n"
+time.sleep(2)
 
 #methode permettant d'attendre les messages reçus des autres joueurs lors du chat
 def chat():
@@ -58,6 +73,7 @@ while True:
 	print "--------------------------------------------------------------------"
 	print "---------------    La nuit tombe sur le village    -----------------"
 	print "--------------------------------------------------------------------\n \n"
+	time.sleep(2)
 
 	#methode décrivant le crime des loups garous pendant la nuit
 	def NuitLoupGarou(p):
@@ -67,7 +83,8 @@ while True:
 		p.envoi("loupsreçus",'')
 		vill = p.recListe("listeVillageois")
 		print "Vous pouvez tuer", vill
-		
+		time.sleep(2)
+
 		print "\n---------------------------------------------------------------\n Début du chat \n "
 		print "Quittez le une fois la décision prise en tapant : fin du chat"
 		#chat de délibération
@@ -118,7 +135,8 @@ while True:
 
 		
 	print "\nCette nuit, ",mort," a été dévoré(e)...\n"
-	
+	time.sleep(2)
+
 	if(keepPlaying != "SansVainqueur"):
 		if(keepPlaying == "LoupsVainqueurs"):
 			print "\nLa partie est finie : les loups ont décimé le village!!!"
@@ -136,7 +154,8 @@ while True:
 	else:
 		print "Le village doit se mettre d'accord. La majorité du vote l'emportera.\n Parmis les joueurs ci dessous, lequel souhaitez vous voir mort?" 
 		print joueurs
-		
+		time.sleep(2)
+
 		print "\n---------------------------------------------------------------\n Début du chat \n "
 		print "Quittez le une fois la décision prise en tapant : fin du chat"
 		#chat de délibération
@@ -164,7 +183,8 @@ while True:
 		mortVote = p.attenteListe("mortVote")
 		
 		print "Le village a décidé de tuer ", mortVote[0],". Il s'agissait d'un ", mortVote[1]," !"
-		
+		time.sleep(1)
+
 		keepPlaying = mortVote[2]
 			
 		if(keepPlaying != "SansVainqueur"):

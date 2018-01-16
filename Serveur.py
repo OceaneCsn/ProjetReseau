@@ -11,6 +11,10 @@ import random as rd
 
 
 #initialisation de la partie et de la communication
+
+if(len(sys.argv) == 1):
+	print "Erreur : veuillez renseigner le nombre de joueurs en argument."
+	sys.exit()
 	
 nb_joueurs = int(sys.argv[1])
 personages = ["Loup Garou", "Villageois"]
