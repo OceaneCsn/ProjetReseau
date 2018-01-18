@@ -8,6 +8,7 @@ import socket
 import threading
 import sys
 import random as rd 
+import signal
 
 
 #initialisation de la partie et de la communication
@@ -114,8 +115,6 @@ def partie():
 		while True:
 			if(cptJoueurs == nb_joueurs):break
 	
-	print sockJoueurs
-	
 	#envoi de la liste de tous les joueurs
 	p.envoiListe("joueurs",[pl.name for pl in players])
 	p.rec("valid")
@@ -156,7 +155,6 @@ def partie():
 			thread_chat_loup = threading.Thread(target = chat)
 			thread_chat_loup.start()
 			
-			print "loups avant chat : ", Loups
 			while True:
 				m = p.attente("chat_rec")
 				nouveau_message = nomJoueur + " > " + m	
@@ -178,7 +176,6 @@ def partie():
 		
 		if(effaceur == "personne"):
 			effaceur = nomJoueur
-			print "c'est ", nomJoueur, "qui efface"
 			del votes[:]
 		
 		#on supprime la personne tuée de la liste des joueurs
@@ -245,7 +242,6 @@ def partie():
 		if(persoMort == "Loup Garou"): Loups.remove(mortVote)
 		else:Villageois.remove(mortVote)
 		
-		print "liste des loups : ",Loups
 		#on détermine si le jeu continue ou si il y a des vainqueurs
 		issue = "SansVainqueur"
 		

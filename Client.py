@@ -7,6 +7,7 @@ from Joueur import *
 import sys
 import threading
 import time
+import signal
 
 if(len(sys.argv) == 1):
 	print "Erreur : veuillez renseigner l'adresse serveur auquel vous connecter pour la partie en argument."
@@ -70,9 +71,9 @@ def chat():
 #boucle principale du jeu
 while True:
 
-	print "--------------------------------------------------------------------"
+	print "\033[34m--------------------------------------------------------------------"
 	print "---------------    La nuit tombe sur le village    -----------------"
-	print "--------------------------------------------------------------------\n \n"
+	print "--------------------------------------------------------------------\n \n\033[0m"
 	time.sleep(2)
 
 	#methode décrivant le crime des loups garous pendant la nuit
@@ -82,10 +83,12 @@ while True:
 		print "Les loups garous s'éveillent et se reconnaissent. Il s'agit de : ", loups
 		p.envoi("loupsreçus",'')
 		vill = p.recListe("listeVillageois")
-		print "Vous pouvez tuer", vill
+		print "Vous pouvez tuer auc choix: ", 
+		for v in vill:
+			print "_ ",v
 		time.sleep(2)
 
-		print "\n---------------------------------------------------------------\n Début du chat \n "
+		print "\033[36m\n\n---------------------------------------------------------------\n Début du chat \n\033[0m"
 		print "Quittez le une fois la décision prise en tapant : fin du chat"
 		#chat de délibération
 		thread_chat_loup = threading.Thread(target = chat)
@@ -95,7 +98,7 @@ while True:
 			p.envoi("chat_rec", message)
 			if "fin du chat" in message:
 				break
-		print "\nFin du chat \n-----------------------------------------------------------------"
+		print "\033[36m\n\nFin du chat \n-----------------------------------------------------------------\033[0m"
 		
 		print "Attendons que les autres joueurs soient sortis du chat...\n"
 		
@@ -129,9 +132,9 @@ while True:
 		if(pl == mort):joueurs.remove(pl)
 			
 
-	print "\n \n--------------------------------------------------------------------"
+	print "\033[33m\n \n--------------------------------------------------------------------"
 	print "---------------------    Le jour se lève    ------------------------"
-	print "--------------------------------------------------------------------\n \n"
+	print "--------------------------------------------------------------------\n \n\033[0m"
 
 		
 	print "\nCette nuit, ",mort," a été dévoré(e)...\n"
@@ -153,10 +156,11 @@ while True:
 
 	else:
 		print "Le village doit se mettre d'accord. La majorité du vote l'emportera.\n Parmis les joueurs ci dessous, lequel souhaitez vous voir mort?" 
-		print joueurs
+		for j in joueurs:
+			print "- ",j
 		time.sleep(2)
 
-		print "\n---------------------------------------------------------------\n Début du chat \n "
+		print "\033[36m\n\n---------------------------------------------------------------\n Début du chat \n\033[0m"
 		print "Quittez le une fois la décision prise en tapant : fin du chat"
 		#chat de délibération
 		thread_chat = threading.Thread(target = chat)
@@ -166,7 +170,7 @@ while True:
 			p.envoi("chat_rec", message)
 			if "fin du chat" in message:
 				break
-		print "\nFin du chat \n-----------------------------------------------------------------"
+		print "\033[36m\nFin du chat \n-----------------------------------------------------------------\033[0m"
 		
 		print "Attendons que les autres joueurs soient sortis du chat...\n"
 		
