@@ -23,7 +23,7 @@ players = []
 cptJoueurs = 0
 sockJoueurs = {}
 
-#print "\033[31mThis is blue\033[0m"
+
 #ouverture de la communication pour le nombre donne de joueurs
 comSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 comSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -42,9 +42,7 @@ rd.shuffle(players)
 
 
 threads = []
-verrou = threading.Lock() 
-
-
+verrou = threading.Lock()
 morts = []
 votes = []
 
@@ -104,23 +102,26 @@ def partie():
 			nomOK = "ok"
 			p.envoi("nomOK", "ok")
 			p.rec("validNom")
-	
+			
+	verrou.acquire()
 	sockJoueurs[nomJoueur] = p
 	players[cptJoueurs].name = nomJoueur
 	perso = players[cptJoueurs].perso
 	cptJoueurs += 1
+	verrou.release()
 	
 	#on attend que tous les clients aient rejoint la partie
 	if(cptJoueurs < nb_joueurs):
 		while True:
 			if(cptJoueurs == nb_joueurs):break
-	
+	print "Partie lancée."
 	#envoi de la liste de tous les joueurs
 	p.envoiListe("joueurs",[pl.name for pl in players])
 	p.rec("valid")
 	p.envoi("perso", perso)
 	
 	#création des listes de personnages
+	verrou.acquire()
 	Loups = []
 	for pl in players:
 		if(pl.perso=="Loup Garou"):
@@ -130,7 +131,7 @@ def partie():
 	for pl in players:
 		if(pl.perso!="Loup Garou"):
 			Villageois.append(pl.name)
-
+	verrou.release()
 
 	#boucle principale su jeu
 	while True:
@@ -149,41 +150,53 @@ def partie():
 			p.envoiListe("listeVillageois", Villageois)
 			
 			#le chat pour délibérer
-			joueur_out = 0
-			nouveau_message = ""
-			message = ""
-			thread_chat_loup = threading.Thread(target = chat)
-			thread_chat_loup.start()
-			
-			while True:
-				m = p.attente("chat_rec")
-				nouveau_message = nomJoueur + " > " + m	
-				if ("fin du chat" in m):
-					joueur_out += 1
-					break	
-			print "joueur_out", joueur_out, "len loups : ",len(Loups)
-			while True:
-				if(joueur_out >= len(Loups)):
-					break
-			p.envoi("chat_fini","ok")
-			
-			
+			if(len(Loups)>1):
+				joueur_out = 0
+				nouveau_message = ""
+				message = ""
+				thread_chat_loup = threading.Thread(target = chat)
+				thread_chat_loup.start()
+				
+				while True:
+					m = p.attente("chat_rec")
+					nouveau_message = nomJoueur + " > " + m	
+					#détecte si le jour veut sortir du chat
+					if ("fin du chat" in m):
+						joueur_out += 1
+						break	
+						
+				#on attend que tous les loups soient sortis du chat
+				while True:
+					if(joueur_out >= len(Loups)):
+						break
+				p.envoi("chat_fini","ok")
+				
+			verrou.acquire()
 			morts.append(p.attente("mort"))
+			verrou.release()
+			
 			
 		#on attend que tous les loups aient voté	
 		while True:
 			if(len(morts)==len(Loups)):break
 		
+		#un des joueurs nettoie la liste (le premier qui arrive)
 		if(effaceur == "personne"):
+			verrou.acquire()
 			effaceur = nomJoueur
+			verrou.release()
 			del votes[:]
 		
 		#on supprime la personne tuée de la liste des joueurs
 		for pl in players:
-			if(pl.name == majorite(morts)):players.remove(pl)
+			if(pl.name == majorite(morts)):
+				verrou.acquire()
+				players.remove(pl)
+				verrou.release()
+				
 		Villageois.remove(majorite(morts))
 		
-		#on stoppe la boucle du  jeu si il ne reste plus qu'un type de personage
+		#on stoppe la boucle du jeu si il ne reste plus qu'un type de personage
 		if(not Villageois):
 			print "\nLa partie est finie : les loups ont décimé le village!!!"
 			p.envoiListe("jour", [majorite(morts),"LoupsVainqueurs"])
@@ -218,7 +231,9 @@ def partie():
 		
 		while True:
 			m = p.attente("chat_rec")
+			verrou.acquire()
 			nouveau_message = nomJoueur + " > " + m	
+			verrou.release()
 			if ("fin du chat" in m):
 				joueur_out += 1
 				break	
@@ -246,13 +261,13 @@ def partie():
 		issue = "SansVainqueur"
 		
 		if(not Villageois):
-			print "\nLa partie est finie : les loups ont décimé le village!!!"
+			print "\nLa partie est finie : les loups ont décimé le village."
 			issue = "LoupsVainqueurs"
 			p.envoiListe("mortVote", [mortVote, persoMort, issue])
 			break
 		
 		if(not Loups):
-			print "\nLa partie est finie : les villageois ont décimé les loups garous!!!"
+			print "\nLa partie est finie : les villageois ont décimé les loups garous."
 			issue = "VillageVanqueur"
 			p.envoiListe("mortVote", [mortVote, persoMort, issue])
 			break
@@ -266,10 +281,11 @@ def partie():
 		
 		effaceur = "personne"
 		
+		#si il y a toujours des loups et des villageois, la boucle recommence.
+		
 			
 		
 #main code
-
 for joueur in xrange(0,nb_joueurs):
 	
 	thread=threading.Thread(target=partie)
