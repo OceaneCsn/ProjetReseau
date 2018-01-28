@@ -33,6 +33,25 @@ p = Protocole(socket, '$')
 
 
 print "Bienvenue dans votre partie de Loup Garou!\n "
+
+print "Souhaitez vous un petit rappel des règles? Tapez oui. Sinon, appyez sur Entrée."
+regles = str(raw_input())
+if(regles == "oui"):
+	print "\n\033[92m--------------------------- Règles du jeu -----------------------------------\n\n\033[0m"
+	print "Voici ce que vous devez savoir pour faire une partie!"
+	print "Le jeu a été simplifié pour ne comprendre que deux types de personnages.\n\nLes LOUPS-GAROUS:\n"
+	print "Chaque nuit, ils égorgent un Villageois. Le jour ils se font passer pour des Villageois afin de ne pas être démasqués.\n\nLes VILLAGEOIS :"
+	print "Chaque nuit, l’un d’entre eux est égorgé par le ou les Loups-Garous. Ce joueur est éliminé du jeu, et ne peut plus participer aux débats. Les Villageois survivants doivent chaque jour lyncher un des joueur, dans l’espoir qu’il soit Loup-Garou."
+	print "\nBUT DU JEU\n- Pour les Villageois : éliminer les Loups-garous.\n- Pour les Loups-garous : éliminer les Villageois.\n\nTOURS DE JEU"
+	print "1- C’EST LA NUIT, le village s'endort. Les Loups-Garous se concertent sur le chat et désignent une victime. Les Loups Garous se rendorment.\n"
+	print "2-C’EST LE JOUR, le village se réveille. Le joueur qui a été victime des Loups-Garous durant la nuit est éliminé du jeu. Il ne pourra plus communiquer avec les autres joueurs sous quelque forme que se soit.\n"
+	print "Les Villageois tentent de démasquer un loup-garou et de faire voter son élimination.\n"
+	print "C’EST LA NUIT, tous les joueurs vivants se rendorment. Nous revenons à l’étape 1, jusqu’à ce que tous les villageois ou tous les loups soient morts.\n"
+	print "\nCONDITIONS DE VICTOIRE \nLes Villageois gagnent dès le dernier Loup-Garou est éliminé. Les Loups-Garous gagnent dès que l'avant dernier villageois est éliminé.\n"
+	print "\nBien à vous, \n\nCassan Océane, Gard Pierre, Lboukili Imane, Verkin Louise.\n"
+	print "\n\033[92m------------------------- Fin des règles ------------------------------------\n\n\033[0m"
+
+
 time.sleep(1)
 print "Veuillez rentrer votre pseudo pour la partie :\n"
 

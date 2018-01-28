@@ -18,6 +18,9 @@ if(len(sys.argv) == 1):
 	sys.exit()
 	
 nb_joueurs = int(sys.argv[1])
+if(nb_joueurs == 1):
+	print "Lancer une partie d'un seul joueur n'a pas grans intérêt"
+	sys.exit()
 personages = ["Loup Garou", "Villageois"]
 players = []
 cptJoueurs = 0
